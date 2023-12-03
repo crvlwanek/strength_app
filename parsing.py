@@ -15,37 +15,36 @@ class WorkoutColumns(str, Enum):
     workout_notes = "Workout Notes"
     rpe = "RPE"
 
-workout_df = pd.read_csv("strong.csv")
-most_recent_date: str = workout_df[WorkoutColumns.date].max()
-most_recent_workout: pd.DataFrame = workout_df[workout_df[WorkoutColumns.date] == most_recent_date]
+def get_most_recent_workout():
+    workout_df = pd.read_csv("strong.csv")
+    most_recent_date: str = workout_df[WorkoutColumns.date].max()
+    most_recent_workout: pd.DataFrame = workout_df[workout_df[WorkoutColumns.date] == most_recent_date]
 
-first_row: pd.Series = most_recent_workout.iloc[0]
-workout_name: str = first_row[WorkoutColumns.workout_name]
-duration: str = first_row[WorkoutColumns.duration]
+    first_row: pd.Series = most_recent_workout.iloc[0]
+    workout_name: str = first_row[WorkoutColumns.workout_name]
+    duration: str = first_row[WorkoutColumns.duration]
 
-unique_exercises = most_recent_workout[WorkoutColumns.exercise_name].unique()
+    unique_exercises = most_recent_workout[WorkoutColumns.exercise_name].unique()
 
-exercises = []
+    exercises = []
 
-for exercise in unique_exercises:
-    exercise_df = most_recent_workout[most_recent_workout[WorkoutColumns.exercise_name] == exercise]
-    num_sets = exercise_df.shape[0]
-    max_weight = exercise_df[WorkoutColumns.weight].max()
-    best_sets = exercise_df[exercise_df[WorkoutColumns.weight] == max_weight]
-    best_set_reps = best_sets[WorkoutColumns.reps].max()
-    
-    exercises.append({
-        "name": exercise,
-        "sets": num_sets,
-        "best_set_weight": max_weight,
-        "best_set_reps": best_set_reps
-    })
+    for exercise in unique_exercises:
+        exercise_df = most_recent_workout[most_recent_workout[WorkoutColumns.exercise_name] == exercise]
+        num_sets = exercise_df.shape[0]
+        max_weight = float(exercise_df[WorkoutColumns.weight].max())
+        best_sets = exercise_df[exercise_df[WorkoutColumns.weight] == max_weight]
+        best_set_reps = int(best_sets[WorkoutColumns.reps].max())
+        
+        exercises.append({
+            "name": exercise,
+            "sets": num_sets,
+            "best_set_weight": max_weight,
+            "best_set_reps": best_set_reps
+        })
 
-data = {
-    "date": most_recent_date,
-    "workout_name": workout_name,
-    "duration": duration,
-    "exercises": exercises
-}
-
-print(data)
+    return {
+        "date": most_recent_date,
+        "workout_name": workout_name,
+        "duration": duration,
+        "exercises": exercises
+    }
